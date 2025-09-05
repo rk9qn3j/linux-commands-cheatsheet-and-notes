@@ -417,7 +417,7 @@ loadkeys se
 localectl set-keymap se
 ```
 
-##SSH
+## SSH
 
 Configuration /etc/ssh/sshd_config
 
@@ -552,13 +552,6 @@ unzip secure.zip
 
 7za a -tzip -pMY_SECRET -mem=AES256
 7za e secure.zip
-```
-
-**List listening processes**
-```sh
-ss -lntup
-netstat -autp
-netstat -nat # Show all current TCP connections 
 ```
 
 **Find something (case insensitive) and supress permission issues**
@@ -918,6 +911,12 @@ cat <file> | grep -A 10 <search term>
 ssh user@machine <command>
 ```
 
+**ssh command on another server (force password auth.)**
+```sh
+ssh user@machine <command>
+ssh -o PubkeyAuthentication=no -o PreferredAuthentications=password user@machine
+```
+
 **copy files between machines using terminal**
 ```sh
 # Copy remote file to local machine
@@ -1131,6 +1130,26 @@ cat /etc/shells
 ```
 
 ## Networking
+
+### General
+**List all processes using one or more ports (TCP and UDP)**
+```sh
+ss -tulpn
+netstat -tupan
+```
+
+**Add system-wide proxy**
+1. Add the below to `/etc/environment`:
+
+```sh
+no_proxy=localhost,127.0.0.0/8,::1,*.domain.com
+https_proxy=http://proxy.domain.com:8080/
+HTTPS_PROXY=http://proxy.domain.com:8080/
+HTTP_PROXY=http://proxy.domain.com:8080/
+http_proxy=http://proxy.domain.com:8080/
+```
+2. Edit proxy for you current desktop environment via respective desktop environment's settings/control 
+
 ### Configure network (Red Hat)
 **Change DNS resolution order**
 ```sh
@@ -1234,8 +1253,6 @@ firewall-cmd --runtime-to-permanent                 # Make current configuration
 > firewall-cmd --get-services
 4. Add the service as a rule to the firewall and save it permanently:
 > firewall-cmd --add-service=XX --permanent
-
-
 
 ## Logging
 
@@ -1645,13 +1662,10 @@ add
 ```
 
 ## SSH
-**Generate new keys
+**Generate new key pair**
 ```
-ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -C "comment"
-
-OR
-
-ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -C "comment"
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -C "<comment>"
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -C "<comment>"
 ```
 
 **Copy you keys to a remote computer**
@@ -1698,6 +1712,32 @@ systemctl enable --now autofs
 
 ## Misc
 
+### Popd/Pushd
+**Add folder to stack**
+```sh
+pushd <PATH>
+```
+
+**Show current stacks (verbose)**
+```sh
+dirs -v
+```
+
+**Go to specific stack**
+```sh
+pushd +<POSITION OF STACK>
+```
+
+**Remove folder from stack**
+```sh
+popd -<POSITION OF STACK>
+```
+
+**Exit current stack**
+```sh
+popd
+```
+
 ### Snippets
 **Find process group id and set priority to minimum**
 ```sh
@@ -1732,6 +1772,28 @@ esac
 ```sh
 $x | tr "x,x,x,x" " "           # Replace characters with whitespace char.
 $x | tr -d "x,x,x,x"            # Delete characters
+```
+
+**Check if directory exists**
+```sh
+if [ -d "$DIRECTORY" ]; then
+  echo "$DIRECTORY exist."
+fi
+```
+
+**Check if file exists**
+```sh
+**Check if specific file exists**
+if [ -f "$FILE" ]; then
+  echo "$FILE exist."
+fi
+```
+
+**Check if variable is empty**
+```sh
+if [ -z "$VARIABLE" ]; then
+  echo "$VARIABLE is empty."
+fi
 ```
 
 **Search for test in files and retur with matches (line by line)**
@@ -1781,6 +1843,11 @@ openssl req -new -newkey rsa:4096 -nodes -keyout <domain>.key -out <domain>.csr
 **Generate self-signed certificate (valid for one year)**
 ```sh
 openssl req -x509 -newkey rsa:4096 -keyout <domain>.key -out <domain>.crt -sha256 -days 365
+```
+
+**Check certificate chain for server**
+```sh
+openssl s_client -connect <host>:443
 ```
 
 ### Git
@@ -2003,19 +2070,31 @@ systemctl --user enable container-<container name> --now
 
 docker compose logs -f <container name>
 
+**Access something through SSH host**
+1. Connect and setup port forward to remote machine:
+```sh
+ssh -L 9443:<host>:443 <user>@<remote machine>
+```
+2. Leave the terminal open.
+3. Access the host on `https://localhost:9443`.
+4. Close the terminal to the remote machine to remove the port forward.
 
+> Pro tip! Edit /etc/hosts and add e.g. `127.0.0.1     host`. When you now access the website with https://\<hostname\>:9443, it should be trusted (if required CAs are installed).
 
-
-
-
-
-
-
-
-
-
-
-
+**Setup up local SOCKS proxy to remote machine via SSH**
+> Dont forget to remove all other proxy settings before you proceed.
+1. Connect and setup SOCKS proxy to remote machine:
+```sh
+ssh -D 10800 <user>@<remote host>`
+```
+2. Leave the terminal open.
+3. Set SOCKS proxy to `127.0.0.1:10800` in browser, app or export environment variable with it like this:
+```sh
+export http_proxy="socks5://127.0.0.1:10800"
+export https_proxy="socks5://127.0.0.1:10800"
+```
+4. Access the desired host as normal
+5. Close the terminal to the remote machine to remove the SOCKS proxy.
 
 
 
