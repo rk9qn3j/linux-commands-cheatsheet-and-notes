@@ -2097,5 +2097,17 @@ export https_proxy="socks5://127.0.0.1:10800"
 5. Close the terminal to the remote machine to remove the SOCKS proxy.
 
 
+**Setup up local split DNS resolving**
 
+This configures your local system to send DNS request to a specific DNS server for a specific domain.
+
+1. Create the folder `mkdir -p /etc/systemd/resolved.conf.d`.
+2. Create a custom config e.g. `custom.conf` with the following contents:
+    ```
+    [Resolve]
+    DNS=<IP ADDRESS OF DNS>
+    Domains=~<DOMAIN>
+    ```
+3. Restart `systemd-resolved` by executing `systemctl restart systemd-resolved`.
+4. Check the `resolvectl status`.
 
