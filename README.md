@@ -2111,3 +2111,13 @@ This configures your local system to send DNS request to a specific DNS server f
 3. Restart `systemd-resolved` by executing `systemctl restart systemd-resolved`.
 4. Check the `resolvectl status`.
 
+
+## Stress/Benchmark
+
+### CPU
+
+**Stress CPU**
+```sh
+stress-ng --cpu 0   # Stress all cores
+stress-ng --cpu 3 --timeout 5   # Stress 3 cores for 5 seconds
+```
